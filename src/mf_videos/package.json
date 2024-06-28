@@ -1,0 +1,20 @@
+{
+  "name": "mf_videos",
+  "version": "1.0.0",
+  "description": "Microfrontend para Videos",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node dist/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node src/app.js",
+    "build": "tsc"  
+  },
+  "dependencies": {
+    "axios": "^0.27.2"
+  },
+  "devDependencies": {
+    "jest": "^29.4.0"
+  },
+  "author": "Tu Nombre",
+  "license": "ISC"
+}

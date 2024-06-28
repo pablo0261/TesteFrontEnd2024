@@ -1,0 +1,26 @@
+{
+  "name": "mf_drawer",
+  "version": "1.0.0",
+  "description": "Microfrontend para Drawer",
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "node dist/app.js",
+    "dev": "ts-node src/app.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "express": "^4.18.1",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/cors": "^2.8.12",
+    "@types/dotenv": "^8.2.0",
+    "typescript": "^4.5.2",
+    "ts-node": "^10.4.0"
+  },
+  "author": "Tu Nombre",
+  "license": "ISC"
+}

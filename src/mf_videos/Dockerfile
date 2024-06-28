@@ -1,6 +1,17 @@
-FROM node:14
+FROM node:16-alpine
+
 WORKDIR /app
-COPY . .
+
+COPY package*.json ./
+
+RUN npm install -g typescript
+
 RUN npm install
-CMD ["npm", "start"]
-EXPOSE 3002
+
+RUN npm install @types/express @types/cors @types/dotenv --save-dev
+
+COPY . .
+
+RUN npm run build
+
+CMD ["node", "dist/app.js"]
