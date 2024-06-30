@@ -5,8 +5,10 @@
   "main": "server.ts",
   "type": "commonjs",
   "scripts": {
+    "build": "tsc",
     "test": "jest",
-    "start": "nodemon server.ts",
+    "start": "node dist/server.js",
+    "dev": "nodemon src/server.ts",
     "build:css": "sass src/styles/main.scss public/css/main.css --watch"
   },
   "repository": {

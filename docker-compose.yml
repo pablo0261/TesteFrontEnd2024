@@ -2,14 +2,28 @@ version: '3.8'
 
 services:
   server:
-    build: .
+    build: ./server
     ports:
-      - '5000:5000'
-    env_file:
-      - .env
+      - "5000:5000"
     volumes:
-      - .:/app
+      - ./server:/app
       - /app/node_modules
-    command: npm start
+    command: npm run dev
+
   mf_drawer:
-    build: ./src/mf_draw
+    build: ./src/mf_drawer
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./src/mf_drawer:/app
+      - /app/node_modules
+    command: npm run dev
+
+  mf_videos:
+    build: ./src/mf_videos
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./src/mf_videos:/app
+      - /app/node_modules
+    command: npm run dev
