@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Videos</title>
+</head>
+<body>
+  <h1>Search Videos</h1>
+  <form id="searchForm">
+    <label for="searchQuery">Enter search query:</label>
+    <input type="text" id="searchQuery" name="q">
+    <button type="submit">Search</button>
+  </form>
+  <div id="results"></div>
+
+  <script>
+    document.getElementById('searchForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      const query = document.getElementById('searchQuery').value.trim();
+      if (!query) return;
+
+      try {
+        const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        displayResults(data);
+      } catch (error) {
+        console.error('Error fetching search results:', error);
+      }
+    });
+
+    function displayResults(data) {
+      const resultsContainer = document.getElementById('results');
+      resultsContainer.innerHTML = ''; 
+      data.items.forEach(item => {
+        const videoTitle = item.snippet.title;
+        const videoId = item.id.videoId;
+        const videoThumbnail = item.snippet.thumbnails.default.url;
+
+        const videoElement = document.createElement('div');
+        videoElement.innerHTML = `
+          <h2>${videoTitle}</h2>
+          <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank">
+            <img src="${videoThumbnail}" alt="${videoTitle}">
+          </a>
+        `;
+        resultsContainer.appendChild(videoElement);
+      });
+    }
+  </script>
+</body>
+</html>

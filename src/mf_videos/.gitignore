@@ -1,0 +1,22 @@
+# Ignorar archivos de configuración y entorno
+.env
+.env.local
+.env.*.local
+.env.*.test
+.env.*.prod
+
+# Ignorar directorio node_modules
+node_modules/
+package-lock.json
+
+# Ignorar archivos generados por IDEs o editores
+.vscode/
+.idea/
+
+# Ignorar archivos de compilación o build
+dist/
+build/
+
+# Ignorar archivos de logs y archivos temporales
+*.log
+*.tmp
