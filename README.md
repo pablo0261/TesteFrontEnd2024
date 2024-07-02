@@ -64,8 +64,19 @@ TesteFrontEnd2024/
 │   │   │   ├── favorites.html
 │   │   ├── app.ts
 │   ├── mf_videos/
-│   │   ├── views/
-│   │   │   └── search.html
+│   │   ├── dist/
+│   │   │   └── app.js
+│   │   ├── node_modules/
+│   │   ├── public/
+│   │   │   ├── style/
+│   │   │   │   └── main.sass
+│   │   │   └── views/
+│   │   │       └── search.html
+│   │   ├── .dockerignore
+│   │   ├── .env
+│   │   ├── Dockerfile
+│   │   ├── package.json
+│   │   ├── tsconfig.json
 │   │   ├── app.ts
 │   ├── routes/
 │   │   └── api.ts

@@ -2,12 +2,14 @@ version: '3.8'
 
 services:
   server:
-    build: ./server
+    build: .
     ports:
       - "5000:5000"
     volumes:
       - ./server:/app
       - /app/node_modules
+    env_file:
+      - .env
     command: npm run dev
 
   mf_drawer:
@@ -18,12 +20,23 @@ services:
       - ./src/mf_drawer:/app
       - /app/node_modules
     command: npm run dev
+    env_file:
+      - .env
+    tty: true    
+    #probar con restart:always
 
   mf_videos:
     build: ./src/mf_videos
     ports:
       - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
     volumes:
       - ./src/mf_videos:/app
       - /app/node_modules
     command: npm run dev
+    env_file:
+      - .env
+    tty: true    
+    restart: always

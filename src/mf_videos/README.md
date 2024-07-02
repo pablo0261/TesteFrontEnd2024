@@ -59,7 +59,12 @@ Usabilidade/Acessibilidade
 
 mf_videos/
 │
-├── dist/              
+├── dist/  
+│   ├── controllers/
+│   │   └── videoControllers.js            
+│   ├── routes/
+│   │   └── api.js            
+│   ├── api.jss/ │
 │
 ├── node_modules/       
 │

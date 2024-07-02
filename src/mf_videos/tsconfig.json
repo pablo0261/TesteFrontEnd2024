@@ -4,11 +4,14 @@
     "resolveJsonModule": true,
     "outDir": "./dist",
     "module": "commonjs",
-    "target": "ES5",
+    "target": "es6",
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
   },
-  "include": ["app.ts"],
+  "include": [
+    "app.ts",
+    "src/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }
