@@ -4,10 +4,11 @@
   "description": "Microfrontend para Videos",
   "main": "dist/app.js",
   "scripts": {
-    "start": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node dist/app.js",
-    "build": "tsc"
+    "build": "tsc && npm run copy-public",
+    "copy-public": "mkdirp dist/public && copyfiles -u 1 public/**/* dist/public",
+    "start": "node dist/app.js"
   },
   "dependencies": {
     "axios": "^0.27.2",

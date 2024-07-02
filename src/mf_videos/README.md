@@ -59,36 +59,43 @@ Usabilidade/Acessibilidade
 
 mf_videos/
 │
-├── dist/  
-│   ├── controllers/
-│   │   └── videoControllers.js            
-│   ├── routes/
-│   │   └── api.js            
-│   ├── api.jss/ │
-│
-├── node_modules/       
-│
-├── public/             
-│   ├── views/
-│   │   └── search.html 
-│
-├── src/                
-│   ├── controllers/    
-│   │   ├── videoController.ts
-│   │
-│   ├── routes/         
-│   │   ├── api.ts      
-│   │   └── index.ts    
-│   │
-│   ├── services/       
-│   │   └── youtubeService.ts
-│   │
-│   ├── app.ts          
-│
-├── .env                
-├── .gitignore          
-├── .dockerignore          
-├── Dockerfile       
-├── package.json        
-├── tsconfig.json       
-└── README.md           
+├── dist/
+│   ├── public/
+│   │   ├── views/
+│   │   │   └── search.html
+│   │   ├── js/
+│   │   │   └── main.js
+│   │   └── style/
+│   │       └── main.sass
+│   ├── src/
+│   │   ├── controllers/
+│   │   │   └── videoControllers.js
+│   │   ├── routes/
+│   │   │   └── api.js
+│   │   └── services/
+│   │       └── youtubeServices.js
+│   ├── api.jss/
+│   ├── node_modules/
+│   ├── public/
+│   │   ├── views/
+│   │   │   └── search.html
+│   │   ├── js/
+│   │   │   └── main.ts
+│   │   └── style/
+│   │       └── main.sass
+│   ├── src/
+│   │   ├── controllers/
+│   │   │   └── videoController.ts
+│   │   ├── routes/
+│   │   │   ├── api.ts
+│   │   │   └── index.ts
+│   │   └── services/
+│   │       └── youtubeService.ts
+│   ├── app.ts
+│   ├── .env
+│   ├── .gitignore
+│   ├── .dockerignore
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── README.md       

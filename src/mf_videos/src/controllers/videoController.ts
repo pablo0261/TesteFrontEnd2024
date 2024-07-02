@@ -1,42 +1,41 @@
-import { Request, Response } from 'express';
-import axios from 'axios';
+// src/controllers/videoController.ts
 
-export const searchVideos = async (req: Request, res: Response) => {
-  const query = req.query.q as string;
+import { Request, Response } from 'express';
+import { searchVideosInYouTube } from '../services/youtubeServices';
+import { toggleFavorite } from '../utils/videosUtils'; 
+
+export const searchVideos = async (req: Request, res: Response): Promise<void> => {
+  const query: string = req.query.q as string;
 
   if (!query) {
     console.log('Query parameter is missing');
-    return res.status(400).json({ error: 'Query parameter is required' });
+    res.status(400).json({ error: 'Query parameter is required' });
+    return;
   }
 
   try {
     console.log(`Searching for videos with query: ${query}`);
-    
-    const response = await axios.get(`https://www.googleapis.com/youtube/v3/search`, {
-      params: {
-        part: 'snippet',
-        q: query,
-        key: process.env.YOUTUBE_API_KEY || "your-api-key",
-      },
-    });
+    const data = await searchVideosInYouTube(query);
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching videos from YouTube API:', error);
+    res.status(500).json({ error: 'Failed to fetch videos' });
+  }
+};
 
-    console.log(`YouTube API response: ${JSON.stringify(response.data)}`);
-    res.json(response.data);
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error('Error fetching videos from YouTube API:', error.message);
-      
-      if (axios.isAxiosError(error)) {
-        console.error('Axios error response:', error.response?.data);
-        res.status(500).json({
-          error: 'Failed to fetch videos',
-          details: error.response?.data,
-        });
-      } else {
-        res.status(500).json({ error: 'Failed to fetch videos', details: error.message });
-      }
-    } else {
-      res.status(500).json({ error: 'Failed to fetch videos', details: 'Unknown error' });
-    }
+export const handleToggleFavorite = async (req: Request, res: Response): Promise<void> => {
+  const videoId: string = req.params.videoId as string;
+
+  if (!videoId) {
+    res.status(400).json({ error: 'Video ID is required' });
+    return;
+  }
+
+  try {
+    const favorites = await toggleFavorite(videoId);
+    res.json({ message: 'Toggle favorite success', favorites });
+  } catch (error) {
+    console.error('Error toggling favorite:', error);
+    res.status(500).json({ error: 'Failed to toggle favorite' });
   }
 };
