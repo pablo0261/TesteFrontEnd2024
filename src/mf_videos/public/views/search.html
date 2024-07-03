@@ -4,16 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Search Videos</title>
+  <link rel="stylesheet" href="/style/main.css">
 </head>
 <body>
-  <h1>Search Videos</h1>
-  <form id="searchForm">
-    <label for="searchQuery">Enter search query:</label>
-    <input type="text" id="searchQuery" name="q">
-    <button type="submit">Search</button>
-  </form>
-  <div id="results"></div>
-
+  <div class="container">
+    <form id="searchForm" class="search-form">
+      <div class="input-container">
+        <input type="text" id="searchQuery" name="q" placeholder="PESQUISAR">
+        <button type="submit" class="search-button"><i class="far fa-search"></i></button>
+      </div>
+    </form>
+    <div id="results" class="video-grid">
+    </div>
+  </div>
   <script src="../views/main.js" type="module"></script>
 </body>
 </html>
