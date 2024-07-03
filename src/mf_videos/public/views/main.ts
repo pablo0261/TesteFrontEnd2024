@@ -22,7 +22,7 @@ function displaySearchResults(videos: any[]) {
         videoItem.classList.add('video-item');
         videoItem.dataset.videoId = video.id.videoId;
 
-        const favoriteStar = document.createElement('span');
+        const favoriteStar = document.createElement('i');
         favoriteStar.classList.add('favorite-star', 'far', 'fa-star');
         favoriteStar.onclick = () => toggleFavorite(video.id.videoId, favoriteStar);
         videoItem.appendChild(favoriteStar);
@@ -40,13 +40,13 @@ function toggleFavorite(videoId: string, starElement: HTMLElement) {
     let favorites = getFavorites();
     const index = favorites.indexOf(videoId);
     if (index !== -1) {
-        favorites.splice(index, 1); // Remove from favorites if already favorited
-        starElement.classList.remove('fas', 'fa-star');
-        starElement.classList.add('far', 'fa-star');
+        favorites.splice(index, 1); 
+        starElement.classList.remove('fas');
+        starElement.classList.add('far');
     } else {
-        favorites.push(videoId); // Add to favorites if not favorited
-        starElement.classList.remove('far', 'fa-star');
-        starElement.classList.add('fas', 'fa-star');
+        favorites.push(videoId); 
+        starElement.classList.remove('far');
+        starElement.classList.add('fas');
     }
     saveFavorites(favorites);
     updateFavoriteCounter();
@@ -79,11 +79,11 @@ function updateStarIcons() {
         const starIcon = item.querySelector('.favorite-star');
         if (starIcon instanceof HTMLElement) {
             if (isFavorite) {
-                starIcon.classList.add('fas', 'fa-star');
-                starIcon.classList.remove('far', 'fa-star');
+                starIcon.classList.add('fas');
+                starIcon.classList.remove('far');
             } else {
-                starIcon.classList.remove('fas', 'fa-star');
-                starIcon.classList.add('far', 'fa-star');
+                starIcon.classList.remove('fas');
+                starIcon.classList.add('far');
             }
         }
     });

@@ -5,16 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Search Videos</title>
   <link rel="stylesheet" href="/style/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
   <div class="container">
     <form id="searchForm" class="search-form">
       <div class="input-container">
         <input type="text" id="searchQuery" name="q" placeholder="PESQUISAR">
-        <button type="submit" class="search-button"><i class="far fa-search"></i></button>
+        <button type="submit" class="search-button"><i class="fas fa-search"></i></button>
       </div>
     </form>
     <div id="results" class="video-grid">
+      <!-- Videos se añaden dinámicamente -->
     </div>
   </div>
   <script src="../views/main.js" type="module"></script>

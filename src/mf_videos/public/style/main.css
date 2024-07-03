@@ -1,4 +1,3 @@
-/* Estilos generales */
 body, html {
   margin: 0;
   padding: 0;
@@ -13,7 +12,6 @@ body, html {
   padding: 20px;
 }
 
-/* Estilos del formulario de búsqueda */
 .search-form {
   display: flex;
   align-items: center;
@@ -23,72 +21,86 @@ body, html {
 
 .input-container {
   position: relative;
-  width: 20%; /* Mantener el ancho original */
+  width: 20%; 
 }
 
 .input-container input[type="text"] {
   width: 100%;
-  padding: 8px 8px 8px 8px; /* Espacio para el icono de la lupa */
+  padding: 8px 0px 8px 8px; 
   border: 1px solid #e6e3e3;
   border-radius: 4px;
 }
 
 .search-button {
   position: absolute;
-  top: 50%;
-  right: 0px;
-  height: 20px;
   width: 20px;
+  height: 20px;
+  top: 50%;
+  right: 8px;
   transform: translateY(-50%);
-  background-color: #ffffff00;
-  background-image: url('/utils/lens.png'); 
-  background-size: contain;
-  background-repeat: no-repeat;
-  cursor: pointer;
+  background: none;
   border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #333; 
 }
 
 .search-button i {
   font-size: 18px;
-  color: inherit; /* Tomar el color del botón */
+  color: inherit; 
 }
 
-/* Estilos del grid de videos */
 .video-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 15px;
-  margin: 25px;
+  margin: 20px;
 }
 
 .video-item {
   position: relative;
   border: solid 2px #333;
   overflow: hidden;
-  min-width: 150px;
-
-   /* Para asegurarse de que la estrella no se desborde */
+  height: 150px;
+  width: 200px;
 }
 
 .video-item img {
-  width: 100%; /* Ajustar el tamaño de la miniatura del video */
-  height: 100%;
+  width: 100%; 
+  height: auto;
+  display: flex;
+  justify-content: center;
+
 }
 
 .favorite-star {
-  position:relative;
-  bottom: 3px;
-  right: 3px;
-  width: 20px; /* Ajusta el tamaño de la imagen según tu necesidad */
-  height: 20px;
-  background-image: url('/utils/star.png'); /* Ruta a la imagen local */
-  background-size: cover;
-  background-repeat: no-repeat;
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  font-size: 20px;
+  color: #fff;
   cursor: pointer;
-  z-index: 10;
+  z-index: 10; 
 }
 
 .favorite-star.active {
-  background-image: url('/utils/fullStar.png');
-   /* Imagen para cuando está activa */
+  color: #f8cc08; 
+}
+
+@media (max-width: 1200px) {
+  .video-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .video-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .video-grid {
+    grid-template-columns: 1fr;
+  }
 }
