@@ -12,7 +12,7 @@
   "include": [
     "app.ts",
     "src/**/*.ts",
-    "public/js/main.ts"
+    "public/views/main.ts"
   ],
   "exclude": ["node_modules"]
 }

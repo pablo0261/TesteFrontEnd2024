@@ -1,5 +1,3 @@
-// src/controllers/videoController.ts
-
 import { Request, Response } from 'express';
 import { searchVideosInYouTube } from '../services/youtubeServices';
 import { toggleFavorite } from '../utils/videosUtils'; 

@@ -1,5 +1,3 @@
-// src/routes/api.ts
-
 import { Router } from 'express';
 import { searchVideos, handleToggleFavorite } from '../controllers/videoController';
 

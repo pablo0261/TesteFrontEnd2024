@@ -11,12 +11,12 @@ const PORT = process.env.PORT2 || 3002;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', apiRoutes);
 
 app.get('/', (req: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, '../public', 'views', 'search.html'));
+  res.sendFile(path.join(__dirname, 'public/views/search.html'));
 });
 
 app.listen(PORT, () => {
