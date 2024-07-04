@@ -48,29 +48,47 @@ function playVideo(videoId: string, container: HTMLElement) {
     iframe.allowFullscreen = true;
 
     const closeButton = document.createElement('button');
-    closeButton.innerHTML = '&times;'; // Unicode character for X
+    closeButton.innerHTML = '&times;'; 
     closeButton.classList.add('close-button');
     closeButton.onclick = () => document.body.removeChild(videoPlayer);
 
     videoPlayer.appendChild(closeButton);
     videoPlayer.appendChild(iframe);
-    document.body.appendChild(videoPlayer); // Append to body to overlay on top of all content
+    document.body.appendChild(videoPlayer); 
 }
 
-function toggleFavorite(videoId: string, starElement: HTMLElement) {
+async function toggleFavorite(videoId: string, starElement: HTMLElement): Promise<void> {
     let favorites = getFavorites();
     const index = favorites.indexOf(videoId);
-    if (index !== -1) {
-        favorites.splice(index, 1); 
-        starElement.classList.remove('fas');
-        starElement.classList.add('far');
-    } else {
-        favorites.push(videoId); 
-        starElement.classList.remove('far');
-        starElement.classList.add('fas');
+    const method = index !== -1 ? 'DELETE' : 'POST';
+
+    try {
+        const response = await fetch(`http://localhost:3002/api/favorites/${videoId}`, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        const data = await response.json();
+        if (response.ok) {
+            if (method === 'POST') {
+                favorites.push(videoId);
+                starElement.classList.remove('far');
+                starElement.classList.add('fas');
+            } else {
+                favorites.splice(index, 1);
+                starElement.classList.remove('fas');
+                starElement.classList.add('far');
+            }
+            saveFavorites(favorites); // Guardar en localStorage
+            updateFavoriteCounter(); // Actualizar contador de favoritos
+            updateStarIcons(); // Actualizar iconos de estrella después de cambiar el estado
+        } else {
+            console.error('Error al agregar/eliminar favorito:', data.error);
+        }
+    } catch (error) {
+        console.error('Error en la solicitud al BFF:', error);
     }
-    saveFavorites(favorites);
-    updateFavoriteCounter();
 }
 
 function getFavorites(): string[] {
@@ -78,44 +96,40 @@ function getFavorites(): string[] {
     return favorites ? JSON.parse(favorites) : [];
 }
 
-function saveFavorites(favorites: string[]) {
+function saveFavorites(favorites: string[]): void {
     localStorage.setItem('favorites', JSON.stringify(favorites));
 }
 
-function updateFavoriteCounter() {
-    const favoriteCounter = document.getElementById('favoriteCounter');
+function updateFavoriteCounter(): void {
+    const counterElement = document.getElementById('favorite-counter');
     const favorites = getFavorites();
-    if (favoriteCounter) {
-        favoriteCounter.textContent = `Favorites: ${favorites.length}`;
+    if (counterElement) {
+        counterElement.textContent = favorites.length.toString();
     }
 }
 
-function updateStarIcons() {
-    const videoItems = document.querySelectorAll('.video-item');
-    videoItems.forEach((item: Element) => {
-        const videoId = item.getAttribute('data-video-id');
-        if (!videoId) return;
+function updateStarIcons(): void {
+    const favorites = getFavorites();
+    const starElements = document.querySelectorAll('.favorite-star');
 
-        const isFavorite = getFavorites().includes(videoId);
-        const starIcon = item.querySelector('.favorite-star');
-        if (starIcon instanceof HTMLElement) {
-            if (isFavorite) {
-                starIcon.classList.add('fas');
-                starIcon.classList.remove('far');
-            } else {
-                starIcon.classList.remove('fas');
-                starIcon.classList.add('far');
-            }
+    starElements.forEach((starElement: Element) => {
+        const videoId = (starElement as HTMLElement).dataset.videoId;
+        if (videoId && favorites.includes(videoId)) {
+            starElement.classList.remove('far');
+            starElement.classList.add('fas');
+        } else {
+            starElement.classList.remove('fas');
+            starElement.classList.add('far');
         }
     });
 }
 
-function fetchFavoritesAndDisplay() {
+function fetchFavoritesAndDisplay(): void {
     const favorites = getFavorites();
     displayFavoriteVideos(favorites);
 }
 
-function displayFavoriteVideos(favorites: string[]) {
+function displayFavoriteVideos(favorites: string[]): void {
     const favoriteList = document.getElementById('favoriteList');
     if (!favoriteList) return;
 
@@ -126,9 +140,3 @@ function displayFavoriteVideos(favorites: string[]) {
         favoriteList.appendChild(favoriteItem);
     });
 }
-
-if (document.getElementById('favoriteList')) {
-    fetchFavoritesAndDisplay();
-}
-updateFavoriteCounter();
-updateStarIcons();
