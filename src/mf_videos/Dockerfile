@@ -35,6 +35,9 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/public ./public
 
+# Copiar el archivo .env
+COPY .env .env
+
 # Verificar el contenido de dist en la etapa final
 RUN echo "Contenido de dist en la etapa final:"
 RUN ls -la ./dist
