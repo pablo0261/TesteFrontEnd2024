@@ -6,7 +6,7 @@ document.getElementById('searchForm')?.addEventListener('submit', async function
     try {
         const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
         const data = await response.json();
-        displaySearchResults(data.items);
+        displaySearchResults(data.items.slice(0, 12)); // Limit to 12 videos
     } catch (error) {
         console.error('Error fetching search results:', error);
     }
@@ -43,17 +43,18 @@ function playVideo(videoId: string, container: HTMLElement) {
 
     const iframe = document.createElement('iframe');
     iframe.src = `https://www.youtube.com/embed/${videoId}`;
+    iframe.frameBorder = '0';
     iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
     iframe.allowFullscreen = true;
 
     const closeButton = document.createElement('button');
     closeButton.innerHTML = '&times;'; // Unicode character for X
     closeButton.classList.add('close-button');
-    closeButton.onclick = () => container.removeChild(videoPlayer);
+    closeButton.onclick = () => document.body.removeChild(videoPlayer);
 
     videoPlayer.appendChild(closeButton);
     videoPlayer.appendChild(iframe);
-    container.appendChild(videoPlayer);
+    document.body.appendChild(videoPlayer); // Append to body to overlay on top of all content
 }
 
 function toggleFavorite(videoId: string, starElement: HTMLElement) {

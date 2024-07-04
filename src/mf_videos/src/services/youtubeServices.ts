@@ -10,6 +10,7 @@ export const searchVideosInYouTube = async (query: string) => {
         part: 'snippet',
         q: query,
         key: process.env.YOUTUBE_API_KEY,
+        maxResults: 12, 
       },
     });
     return response.data;
