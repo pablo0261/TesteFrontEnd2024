@@ -30,10 +30,30 @@ function displaySearchResults(videos: any[]) {
         const videoThumbnail = document.createElement('img');
         videoThumbnail.src = video.snippet.thumbnails.default.url;
         videoThumbnail.alt = video.snippet.title;
+        videoThumbnail.onclick = () => playVideo(video.id.videoId, videoItem);
         videoItem.appendChild(videoThumbnail);
 
         resultsContainer.appendChild(videoItem);
     });
+}
+
+function playVideo(videoId: string, container: HTMLElement) {
+    const videoPlayer = document.createElement('div');
+    videoPlayer.classList.add('video-player');
+
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube.com/embed/${videoId}`;
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    iframe.allowFullscreen = true;
+
+    const closeButton = document.createElement('button');
+    closeButton.innerHTML = '&times;'; // Unicode character for X
+    closeButton.classList.add('close-button');
+    closeButton.onclick = () => container.removeChild(videoPlayer);
+
+    videoPlayer.appendChild(closeButton);
+    videoPlayer.appendChild(iframe);
+    container.appendChild(videoPlayer);
 }
 
 function toggleFavorite(videoId: string, starElement: HTMLElement) {
