@@ -83,7 +83,7 @@ body, html {
   z-index: 10; 
 }
 
-.favorite-star.active {
+.favorite-star.fas {
   color: #f8cc08; 
 }
 
