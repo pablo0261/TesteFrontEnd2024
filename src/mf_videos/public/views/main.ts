@@ -6,7 +6,7 @@ document.getElementById('searchForm')?.addEventListener('submit', async function
     try {
         const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
         const data = await response.json();
-        displaySearchResults(data.items.slice(0, 12)); // Limit to 12 videos
+        displaySearchResults(data); 
     } catch (error) {
         console.error('Error fetching search results:', error);
     }
@@ -16,7 +16,7 @@ function displaySearchResults(videos: any[]) {
     const resultsContainer = document.getElementById('results');
     if (!resultsContainer) return;
 
-    resultsContainer.innerHTML = '';
+    resultsContainer.innerHTML = ''; 
     videos.forEach(video => {
         const videoItem = document.createElement('div');
         videoItem.classList.add('video-item');
@@ -36,7 +36,8 @@ function displaySearchResults(videos: any[]) {
         resultsContainer.appendChild(videoItem);
     });
 
-    updateStarIcons(); // Update star icons after rendering search results
+
+    updateStarIcons(); 
 }
 
 function playVideo(videoId: string, container: HTMLElement) {
@@ -45,7 +46,6 @@ function playVideo(videoId: string, container: HTMLElement) {
 
     const iframe = document.createElement('iframe');
     iframe.src = `https://www.youtube.com/embed/${videoId}`;
-    iframe.frameBorder = '0';
     iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
     iframe.allowFullscreen = true;
 
@@ -63,12 +63,17 @@ async function toggleFavorite(videoId: string, starElement: HTMLElement): Promis
     const favorites = getFavorites();
     const isFavorite = favorites.includes(videoId);
 
+    const url = `http://localhost:3000/api/favorites/${videoId}`;
+
+    console.log(`Enviando solicitud a: ${url}`);
+
     try {
-        const response = await fetch(`/api/favorites/${videoId}`, {
+        const response = await fetch(url, {
             method: isFavorite ? 'DELETE' : 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
+            mode: 'cors',
         });
 
         if (response.ok) {
@@ -115,7 +120,7 @@ function updateFavoriteCounter(): void {
 
 async function fetchFavoritesFromServer(): Promise<string[]> {
     try {
-        const response = await fetch('/api/favorites');
+        const response = await fetch('http://localhost:3000/api/favorites');
         const data = await response.json();
         return data.map((video: { id: string }) => video.id);
     } catch (error) {
