@@ -1,36 +1,51 @@
 import { Request, Response } from 'express';
-import { toggleFavorite, removeFavorite } from '../utils/videosUtils';
 
-export const handleToggleFavorite = async (req: Request, res: Response): Promise<void> => {
-  const videoId: string = req.params.videoId as string;
+interface Video {
+    id: string;
+}
 
-  if (!videoId) {
-    res.status(400).json({ error: 'Video ID is required' });
-    return;
-  }
+let favorites: Video[] = [];
 
-  try {
-    const favorites = await toggleFavorite(videoId);
-    res.json({ message: 'Video added to favorites', favorites });
-  } catch (error) {
-    console.error('Error toggling favorite:', error);
-    res.status(500).json({ error: 'Failed to toggle favorite' });
-  }
+export const getFavorites = (req: Request, res: Response): void => {
+    try {
+        res.json(favorites);
+    } catch (error) {
+        console.error('Error fetching favorites:', error);
+        res.status(500).json({ error: 'Error fetching favorites.' });
+    }
 };
 
-export const handleDeleteFavorite = async (req: Request, res: Response): Promise<void> => {
-  const videoId: string = req.params.videoId as string;
+export const addToFavorites = (req: Request, res: Response): void => {
+    try {
+        const { videoId } = req.params;
+        const existingIndex = favorites.findIndex(fav => fav.id === videoId);
+        if (existingIndex !== -1) {
+            res.status(400).json({ error: 'Video already exists in favorites.' });
+            return;
+        }
 
-  if (!videoId) {
-    res.status(400).json({ error: 'Video ID is required' });
-    return;
-  }
+        const newFavorite: Video = { id: videoId };
+        favorites.push(newFavorite);
 
-  try {
-    const favorites = await removeFavorite(videoId);
-    res.json({ message: 'Video removed from favorites', favorites });
-  } catch (error) {
-    console.error('Error removing favorite:', error);
-    res.status(500).json({ error: 'Failed to remove favorite' });
-  }
+        res.status(200).json({ message: 'added' });
+    } catch (error) {
+        console.error('Error adding to favorites:', error);
+        res.status(500).json({ error: 'Error adding to favorites.' });
+    }
+};
+
+export const removeFromFavorites = (req: Request, res: Response): void => {
+    try {
+        const { videoId } = req.params;
+        const index = favorites.findIndex(fav => fav.id === videoId);
+        if (index !== -1) {
+            favorites.splice(index, 1);
+            res.status(200).json({ message: 'removed' });
+        } else {
+            res.status(404).json({ error: 'Video not found in favorites.' });
+        }
+    } catch (error) {
+        console.error('Error removing from favorites:', error);
+        res.status(500).json({ error: 'Error removing from favorites.' });
+    }
 };

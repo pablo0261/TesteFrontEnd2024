@@ -16,7 +16,7 @@ function displaySearchResults(videos: any[]) {
     const resultsContainer = document.getElementById('results');
     if (!resultsContainer) return;
 
-    resultsContainer.innerHTML = ''; 
+    resultsContainer.innerHTML = '';
     videos.forEach(video => {
         const videoItem = document.createElement('div');
         videoItem.classList.add('video-item');
@@ -35,6 +35,8 @@ function displaySearchResults(videos: any[]) {
 
         resultsContainer.appendChild(videoItem);
     });
+
+    updateStarIcons(); // Update star icons after rendering search results
 }
 
 function playVideo(videoId: string, container: HTMLElement) {
@@ -48,46 +50,49 @@ function playVideo(videoId: string, container: HTMLElement) {
     iframe.allowFullscreen = true;
 
     const closeButton = document.createElement('button');
-    closeButton.innerHTML = '&times;'; 
+    closeButton.innerHTML = '&times;';
     closeButton.classList.add('close-button');
     closeButton.onclick = () => document.body.removeChild(videoPlayer);
 
     videoPlayer.appendChild(closeButton);
     videoPlayer.appendChild(iframe);
-    document.body.appendChild(videoPlayer); 
+    document.body.appendChild(videoPlayer);
 }
 
 async function toggleFavorite(videoId: string, starElement: HTMLElement): Promise<void> {
-    let favorites = getFavorites();
-    const index = favorites.indexOf(videoId);
-    const method = index !== -1 ? 'DELETE' : 'POST';
+    const favorites = getFavorites();
+    const isFavorite = favorites.includes(videoId);
 
     try {
-        const response = await fetch(`http://localhost:3002/api/favorites/${videoId}`, {
-            method,
+        const response = await fetch(`/api/favorites/${videoId}`, {
+            method: isFavorite ? 'DELETE' : 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
         });
-        const data = await response.json();
+
         if (response.ok) {
-            if (method === 'POST') {
+            if (isFavorite) {
+                const index = favorites.indexOf(videoId);
+                if (index !== -1) {
+                    favorites.splice(index, 1);
+                }
+                starElement.classList.remove('fas');
+                starElement.classList.add('far');
+                starElement.style.color = '';
+            } else {
                 favorites.push(videoId);
                 starElement.classList.remove('far');
                 starElement.classList.add('fas');
-            } else {
-                favorites.splice(index, 1);
-                starElement.classList.remove('fas');
-                starElement.classList.add('far');
+                starElement.style.color = 'yellow';
             }
-            saveFavorites(favorites); // Guardar en localStorage
-            updateFavoriteCounter(); // Actualizar contador de favoritos
-            updateStarIcons(); // Actualizar iconos de estrella después de cambiar el estado
+            saveFavorites(favorites); // Save favorites to localStorage
+            updateFavoriteCounter(); // Update favorite counter
         } else {
-            console.error('Error al agregar/eliminar favorito:', data.error);
+            console.error('Error adding/removing favorite:', await response.json());
         }
     } catch (error) {
-        console.error('Error en la solicitud al BFF:', error);
+        console.error('Error in BFF request:', error);
     }
 }
 
@@ -108,35 +113,37 @@ function updateFavoriteCounter(): void {
     }
 }
 
+async function fetchFavoritesFromServer(): Promise<string[]> {
+    try {
+        const response = await fetch('/api/favorites');
+        const data = await response.json();
+        return data.map((video: { id: string }) => video.id);
+    } catch (error) {
+        console.error('Error fetching favorites from server:', error);
+        return [];
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const favoritesFromServer = await fetchFavoritesFromServer();
+    saveFavorites(favoritesFromServer); // Save favorites from server to localStorage
+    updateStarIcons(); // Update star icons based on fetched favorites
+});
+
 function updateStarIcons(): void {
     const favorites = getFavorites();
     const starElements = document.querySelectorAll('.favorite-star');
 
     starElements.forEach((starElement: Element) => {
-        const videoId = (starElement as HTMLElement).dataset.videoId;
+        const videoId = (starElement as HTMLElement).parentElement?.dataset.videoId;
         if (videoId && favorites.includes(videoId)) {
             starElement.classList.remove('far');
             starElement.classList.add('fas');
+            (starElement as HTMLElement).style.color = 'yellow';
         } else {
             starElement.classList.remove('fas');
             starElement.classList.add('far');
+            (starElement as HTMLElement).style.color = '';
         }
-    });
-}
-
-function fetchFavoritesAndDisplay(): void {
-    const favorites = getFavorites();
-    displayFavoriteVideos(favorites);
-}
-
-function displayFavoriteVideos(favorites: string[]): void {
-    const favoriteList = document.getElementById('favoriteList');
-    if (!favoriteList) return;
-
-    favoriteList.innerHTML = '';
-    favorites.forEach(videoId => {
-        const favoriteItem = document.createElement('div');
-        favoriteItem.textContent = `Favorite Video ID: ${videoId}`;
-        favoriteList.appendChild(favoriteItem);
     });
 }
