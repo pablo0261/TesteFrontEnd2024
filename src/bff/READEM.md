@@ -57,28 +57,16 @@ Componentização
 Usabilidade/Acessibilidade
 
 
-mf_drawer/
-├── dist/                       
-│   └── app.js                 
-├── node_modules/              
-├── public/                    
-│   ├── style/                 
-│   │   └── main.sass           
-│   └── views/                  
-│       ├── search.html        
-│       └── favorites.html      
-│       └── main.ts    
-├── src/                        
-│   ├── controllers/            
-│   │   └── drawerControllers.ts
-│   ├── routes/                 
-│   │   ├── api.ts           
-│   │   └── index.ts           
-│   ├── services/               
-│   │   └── youtubeService.ts   
-├── app.ts                  
-├── .dockerignore               
+bff/
+|   ├── controller
+│   │   └── favoritesControllers.ts           
 ├── .env                        
+├── .dockerignore                        
+├── .gitignore                 
+├── bff.ts                  
 ├── Dockerfile                 
+├── package.json            
 ├── README.md              
-└── .gitignore               
+├── tsconfig.json            
+├── node_modules/              
+├── .dockerignore               

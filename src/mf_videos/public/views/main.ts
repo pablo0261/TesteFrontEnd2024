@@ -6,7 +6,7 @@ document.getElementById('searchForm')?.addEventListener('submit', async function
     try {
         const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
         const data = await response.json();
-        displaySearchResults(data.items.slice(0, 12)); // Limit to 12 videos
+        displaySearchResults(data); 
     } catch (error) {
         console.error('Error fetching search results:', error);
     }
@@ -35,6 +35,9 @@ function displaySearchResults(videos: any[]) {
 
         resultsContainer.appendChild(videoItem);
     });
+
+
+    updateStarIcons(); 
 }
 
 function playVideo(videoId: string, container: HTMLElement) {
@@ -43,34 +46,59 @@ function playVideo(videoId: string, container: HTMLElement) {
 
     const iframe = document.createElement('iframe');
     iframe.src = `https://www.youtube.com/embed/${videoId}`;
-    iframe.frameBorder = '0';
     iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
     iframe.allowFullscreen = true;
 
     const closeButton = document.createElement('button');
-    closeButton.innerHTML = '&times;'; // Unicode character for X
+    closeButton.innerHTML = '&times;';
     closeButton.classList.add('close-button');
     closeButton.onclick = () => document.body.removeChild(videoPlayer);
 
     videoPlayer.appendChild(closeButton);
     videoPlayer.appendChild(iframe);
-    document.body.appendChild(videoPlayer); // Append to body to overlay on top of all content
+    document.body.appendChild(videoPlayer);
 }
 
-function toggleFavorite(videoId: string, starElement: HTMLElement) {
-    let favorites = getFavorites();
-    const index = favorites.indexOf(videoId);
-    if (index !== -1) {
-        favorites.splice(index, 1); 
-        starElement.classList.remove('fas');
-        starElement.classList.add('far');
-    } else {
-        favorites.push(videoId); 
-        starElement.classList.remove('far');
-        starElement.classList.add('fas');
+async function toggleFavorite(videoId: string, starElement: HTMLElement): Promise<void> {
+    const favorites = getFavorites();
+    const isFavorite = favorites.includes(videoId);
+
+    const url = `http://localhost:3000/api/favorites/${videoId}`;
+
+    console.log(`Enviando solicitud a: ${url}`);
+
+    try {
+        const response = await fetch(url, {
+            method: isFavorite ? 'DELETE' : 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            mode: 'cors',
+        });
+
+        if (response.ok) {
+            if (isFavorite) {
+                const index = favorites.indexOf(videoId);
+                if (index !== -1) {
+                    favorites.splice(index, 1);
+                }
+                starElement.classList.remove('fas');
+                starElement.classList.add('far');
+                starElement.style.color = '';
+            } else {
+                favorites.push(videoId);
+                starElement.classList.remove('far');
+                starElement.classList.add('fas');
+                starElement.style.color = 'yellow';
+            }
+            saveFavorites(favorites); // Save favorites to localStorage
+            updateFavoriteCounter(); // Update favorite counter
+        } else {
+            console.error('Error adding/removing favorite:', await response.json());
+        }
+    } catch (error) {
+        console.error('Error in BFF request:', error);
     }
-    saveFavorites(favorites);
-    updateFavoriteCounter();
 }
 
 function getFavorites(): string[] {
@@ -78,57 +106,49 @@ function getFavorites(): string[] {
     return favorites ? JSON.parse(favorites) : [];
 }
 
-function saveFavorites(favorites: string[]) {
+function saveFavorites(favorites: string[]): void {
     localStorage.setItem('favorites', JSON.stringify(favorites));
 }
 
-function updateFavoriteCounter() {
-    const favoriteCounter = document.getElementById('favoriteCounter');
+function updateFavoriteCounter(): void {
+    const counterElement = document.getElementById('favorite-counter');
     const favorites = getFavorites();
-    if (favoriteCounter) {
-        favoriteCounter.textContent = `Favorites: ${favorites.length}`;
+    if (counterElement) {
+        counterElement.textContent = favorites.length.toString();
     }
 }
 
-function updateStarIcons() {
-    const videoItems = document.querySelectorAll('.video-item');
-    videoItems.forEach((item: Element) => {
-        const videoId = item.getAttribute('data-video-id');
-        if (!videoId) return;
+async function fetchFavoritesFromServer(): Promise<string[]> {
+    try {
+        const response = await fetch('http://localhost:3000/api/favorites');
+        const data = await response.json();
+        return data.map((video: { id: string }) => video.id);
+    } catch (error) {
+        console.error('Error fetching favorites from server:', error);
+        return [];
+    }
+}
 
-        const isFavorite = getFavorites().includes(videoId);
-        const starIcon = item.querySelector('.favorite-star');
-        if (starIcon instanceof HTMLElement) {
-            if (isFavorite) {
-                starIcon.classList.add('fas');
-                starIcon.classList.remove('far');
-            } else {
-                starIcon.classList.remove('fas');
-                starIcon.classList.add('far');
-            }
+document.addEventListener('DOMContentLoaded', async () => {
+    const favoritesFromServer = await fetchFavoritesFromServer();
+    saveFavorites(favoritesFromServer); // Save favorites from server to localStorage
+    updateStarIcons(); // Update star icons based on fetched favorites
+});
+
+function updateStarIcons(): void {
+    const favorites = getFavorites();
+    const starElements = document.querySelectorAll('.favorite-star');
+
+    starElements.forEach((starElement: Element) => {
+        const videoId = (starElement as HTMLElement).parentElement?.dataset.videoId;
+        if (videoId && favorites.includes(videoId)) {
+            starElement.classList.remove('far');
+            starElement.classList.add('fas');
+            (starElement as HTMLElement).style.color = 'yellow';
+        } else {
+            starElement.classList.remove('fas');
+            starElement.classList.add('far');
+            (starElement as HTMLElement).style.color = '';
         }
     });
 }
-
-function fetchFavoritesAndDisplay() {
-    const favorites = getFavorites();
-    displayFavoriteVideos(favorites);
-}
-
-function displayFavoriteVideos(favorites: string[]) {
-    const favoriteList = document.getElementById('favoriteList');
-    if (!favoriteList) return;
-
-    favoriteList.innerHTML = '';
-    favorites.forEach(videoId => {
-        const favoriteItem = document.createElement('div');
-        favoriteItem.textContent = `Favorite Video ID: ${videoId}`;
-        favoriteList.appendChild(favoriteItem);
-    });
-}
-
-if (document.getElementById('favoriteList')) {
-    fetchFavoritesAndDisplay();
-}
-updateFavoriteCounter();
-updateStarIcons();

@@ -11,15 +11,15 @@ const PORT = process.env.PORT1 || 3001;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Routes
 app.get('/', (req: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, 'views', 'search.html'));
+  res.sendFile(path.join(__dirname, '../public/views', 'search.html'));
 });
 
 app.get('/favorites', (req: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, 'views', 'favorites.html'));
+  res.sendFile(path.join(__dirname, '../public/views', 'favorites.html'));
 });
 
 // Start server

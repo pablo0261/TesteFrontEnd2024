@@ -1,10 +1,18 @@
-export const toggleFavorite = async (videoId: string) => {
-    try {
-        const response = await fetch(`/api/favorites/${videoId}`, { method: 'POST' });
-        const data = await response.json();
-        return data.favorites; 
-    } catch (error) {
-        console.error('Error toggling favorite:', error);
-        throw new Error('Failed to toggle favorite');
-    }
+interface Video {
+  id: string;
+}
+
+let favorites: Video[] = [];
+
+export const toggleFavorite = async (videoId: string): Promise<Video[]> => {
+  const existingIndex = favorites.findIndex(fav => fav.id === videoId);
+  if (existingIndex === -1) {
+    favorites.push({ id: videoId });
+  }
+  return favorites;
+};
+
+export const removeFavorite = async (videoId: string): Promise<Video[]> => {
+  favorites = favorites.filter(fav => fav.id !== videoId);
+  return favorites;
 };
