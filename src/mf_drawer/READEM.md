@@ -67,6 +67,7 @@ mf_drawer/
 │   └── views/                  
 │       ├── search.html        
 │       └── favorites.html      
+│       └── main.ts    
 ├── src/                        
 │   ├── controllers/            
 │   │   └── drawerControllers.ts
