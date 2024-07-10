@@ -58,28 +58,10 @@ Usabilidade/Acessibilidade
 
 
 mf_videos/
-│
-├── dist/
-│   ├── public/
-│   │   ├── views/
-│   │   │   └── search.html
-│   │   ├── js/
-│   │   │   └── main.js
-│   │   └── style/
-│   │       └── main.sass
-│   ├── src/
-│   │   ├── controllers/
-│   │   │   └── videoControllers.js
-│   │   ├── routes/
-│   │   │   └── api.js
-│   │   └── services/
-│   │       └── youtubeServices.js
-│   ├── api.jss/
 │   ├── node_modules/
 │   ├── public/
 │   │   ├── views/
 │   │   │   └── search.html
-│   │   ├── js/
 │   │   │   └── main.ts
 │   │   └── style/
 │   │       └── main.sass

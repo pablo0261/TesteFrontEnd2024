@@ -3,15 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Search Videos</title>
-  <link rel="stylesheet" href="/css/main.css">
+  <title>Drawer</title>
+  <link rel="stylesheet" href="../style/main.css">
 </head>
 <body>
-  <h1>Search Videos</h1>
-  <input type="text" id="searchQuery" placeholder="Search for videos">
-  <button onclick="searchVideos()">Search</button>
-  <div id="videoList"></div>
-
-  <script src="/views/main.js"></script>
+  <div id="drawer-container" style="display: flex;">
+    <div id="drawer" style="width: 20%; background-color: #f0f0f0; height: 100vh;">
+      <button id="show-videos">VÍDEOS</button>
+      <button id="show-favorites">FAVORITOS</button>
+    </div>
+    <div id="content" style="width: 80%;">
+      <iframe id="content-frame" src="http://localhost:3002" style="border: none; width: 100%; height: 100vh;"></iframe>
+    </div>
+  </div>
+  <script src="../views/main.js"></script>
 </body>
 </html>

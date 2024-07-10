@@ -9,8 +9,18 @@ const PORT = process.env.PORT || 3000;
 dotenv.config();
 app.use(express.json());
 
+const allowedOrigins = ['http://localhost:3001', 'http://localhost:3002'];
+
 app.use(cors({
-  origin: 'http://localhost:3002',
+  origin: function (origin, callback) {
+    // Permite solicitudes sin origen (como las de herramientas de desarrollo y cURL)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   methods: ['GET', 'POST', 'DELETE'],
   allowedHeaders: ['Content-Type'],
 }));

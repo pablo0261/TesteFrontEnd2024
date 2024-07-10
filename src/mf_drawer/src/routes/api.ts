@@ -1,21 +1,15 @@
-"use strict";
-
-import express, { Request, Response } from 'express';
-import { searchVideos } from '../services/youtubeServices';
-
+import express from 'express';
 const router = express.Router();
-export { router };
+import fs from 'fs';
 
-router.get('/', async (req: Request, res: Response): Promise<Response> => {
-    const query = req.query.q as string;
-    if (!query) {
-        return res.status(400).json({ error: 'Parámetro "q" no especificado.' });
-    }
+// Endpoint to get favorites
+router.get('/favorites', async (req, res) => {
     try {
-        const videos = await searchVideos(query);
-        return res.json(videos);
+        const favorites = JSON.parse(await fs.promises.readFile('./favorites.json', 'utf-8'));
+        res.json(favorites);
     } catch (error) {
-        console.error('Error en la búsqueda de vídeos:', error);
-        return res.status(500).json({ error: 'Error en la búsqueda de vídeos.' });
+        res.status(500).json({ error: 'Failed to load favorites' });
     }
 });
+
+export default router;

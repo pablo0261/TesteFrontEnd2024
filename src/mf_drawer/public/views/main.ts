@@ -5,92 +5,216 @@ dotenv.config();
 const API_KEY = process.env.API_KEY;
 
 interface Video {
-    id: string;
+  id: {
+    videoId: string;
+  };
+  snippet: {
     title: string;
-    thumbnail: string;
-    isFavorite: boolean;
+    thumbnails: {
+      default: {
+        url: string;
+      };
+    };
+  };
 }
 
-const videosButton = document.getElementById('videosButton') as HTMLButtonElement;
-const favoritesButton = document.getElementById('favoritesButton') as HTMLButtonElement;
-const favoritesCount = document.getElementById('favoritesCount') as HTMLSpanElement;
-const videoListContainer = document.getElementById('videoListContainer') as HTMLDivElement;
-
-let videos: Video[] = [];
-let favorites: Video[] = [];
-
-async function searchVideos(query: string): Promise<void> {
-    try {
-        const response = await fetch(`https://api.youtube.com/search?q=${query}&key=${API_KEY}`);
-        const data = await response.json();
-
-        videos = data.items.map((item: any) => ({
-            id: item.id.videoId,
-            title: item.snippet.title,
-            thumbnail: item.snippet.thumbnails.default.url,
-            isFavorite: favorites.some(fav => fav.id === item.id.videoId)
-        }));
-
-        renderVideos();
-    } catch (error) {
-        console.error('Error al buscar videos:', error);
-    }
-}
-
-function renderVideos(): void {
-    videoListContainer.innerHTML = '';
-
-    videos.forEach(video => {
-        const videoItem = document.createElement('div');
-        videoItem.classList.add('video-item');
-        videoItem.innerHTML = `
-            <img src="${video.thumbnail}" alt="${video.title}">
-            <h3>${video.title}</h3>
-            <button class="favorite-button">${video.isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}</button>
-        `;
-
-        const favoriteButton = videoItem.querySelector('.favorite-button') as HTMLButtonElement;
-        favoriteButton.addEventListener('click', () => toggleFavorite(video));
-
-        videoListContainer.appendChild(videoItem);
-    });
-}
-
-function toggleFavorite(video: Video): void {
-    const index = favorites.findIndex(fav => fav.id === video.id);
-
-    if (index === -1) {
-        favorites.push(video);
-        video.isFavorite = true;
-    } else {
-        favorites.splice(index, 1);
-        video.isFavorite = false;
-    }
-
-    favoritesCount.textContent = favorites.length.toString();
-
-    renderVideos();
-
-    localStorage.setItem('favorites', JSON.stringify(favorites));
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    videosButton.addEventListener('click', () => {
-        console.log('Mostrar lista de vídeos');
-        videoListContainer.innerHTML = '';
-        searchVideos('');
-    });
-
-    favoritesButton.addEventListener('click', () => {
-        console.log('Mostrar lista de favoritos');
-        videoListContainer.innerHTML = '';
-        videos = favorites;
-        renderVideos();
-    });
-
-    const storedFavorites = localStorage.getItem('favorites');
-    if (storedFavorites) {
-        favorites = JSON.parse(storedFavorites);
-        favoritesCount.textContent = favorites.length.toString();
-    }
+document.addEventListener('DOMContentLoaded', async () => {
+  const favoritesFromServer = await fetchFavoritesFromServer();
+  saveFavorites(favoritesFromServer);
+  updateStarIcons(); // Asegura que los íconos de estrella se actualicen al cargar la página
 });
+
+document.getElementById('searchForm')?.addEventListener('submit', async function(event) {
+  event.preventDefault();
+  const query = (document.getElementById('searchQuery') as HTMLInputElement).value.trim();
+  if (!query) return;
+
+  try {
+    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+    const data: Video[] = await response.json();
+    displaySearchResults(data);
+  } catch (error) {
+    console.error('Error fetching search results:', error);
+  }
+});
+
+async function displaySearchResults(videos: Video[]) {
+  const resultsContainer = document.getElementById('results');
+  if (!resultsContainer) return;
+
+  resultsContainer.innerHTML = '';
+  for (const video of videos) {
+    const videoItem = createVideoItem(video, false);
+    resultsContainer.appendChild(videoItem);
+  }
+
+  updateStarIcons();
+
+  // Fetch favorite videos from BFF and render them
+  const favoriteIds = await fetchFavoritesFromServer();
+  const favoriteVideos = await fetchVideosFromYouTube(favoriteIds);
+  renderFavoriteVideos(favoriteVideos);
+}
+
+async function fetchVideosFromYouTube(videoIds: string[]): Promise<Video[]> {
+  const videos: Video[] = [];
+
+  for (const videoId of videoIds) {
+    try {
+      const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${API_KEY}&part=snippet`);
+      const data = await response.json();
+      const video: Video = {
+        id: { videoId },
+        snippet: {
+          title: data.items[0].snippet.title,
+          thumbnails: {
+            default: {
+              url: data.items[0].snippet.thumbnails.default.url,
+            },
+          },
+        },
+      };
+      videos.push(video);
+    } catch (error) {
+      console.error(`Error fetching video ${videoId} from YouTube:`, error);
+    }
+  }
+
+  return videos;
+}
+
+function renderFavoriteVideos(videos: Video[]): void {
+  const favoritesContainer = document.getElementById('favorites-container');
+  if (!favoritesContainer) return;
+
+  favoritesContainer.innerHTML = '';
+  videos.forEach(video => {
+    const videoItem = createVideoItem(video, true);
+    favoritesContainer.appendChild(videoItem);
+  });
+
+  updateStarIcons();
+}
+
+function createVideoItem(video: Video, isFavorite: boolean): HTMLElement {
+  const videoItem = document.createElement('div');
+  videoItem.classList.add('video-item');
+  videoItem.dataset.videoId = video.id.videoId;
+
+  const favoriteStar = document.createElement('i');
+  favoriteStar.classList.add('favorite-star', 'far', 'fa-star');
+  if (isFavorite) {
+    favoriteStar.classList.remove('far');
+    favoriteStar.classList.add('fas');
+    favoriteStar.style.color = 'yellow';
+  }
+  favoriteStar.onclick = () => toggleFavorite(video.id.videoId, favoriteStar);
+  videoItem.appendChild(favoriteStar);
+
+  const videoThumbnail = document.createElement('img');
+  videoThumbnail.src = video.snippet.thumbnails.default.url;
+  videoThumbnail.alt = video.snippet.title;
+  videoThumbnail.onclick = () => playVideo(video.id.videoId, videoItem);
+  videoItem.appendChild(videoThumbnail);
+
+  return videoItem;
+}
+
+async function toggleFavorite(videoId: string, starElement: HTMLElement): Promise<void> {
+  const url = `http://localhost:3000/api/favorites/${videoId}`;
+  const isFavorite = starElement.classList.contains('fas');
+
+  console.log(`Enviando solicitud a: ${url}`);
+
+  try {
+    const response = await fetch(url, {
+      method: isFavorite ? 'DELETE' : 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      mode: 'cors',
+    });
+
+    if (response.ok) {
+      if (isFavorite) {
+        starElement.classList.remove('fas');
+        starElement.classList.add('far');
+        starElement.style.color = '';
+      } else {
+        starElement.classList.remove('far');
+        starElement.classList.add('fas');
+        starElement.style.color = 'yellow';
+      }
+      updateFavoriteCounter(); // Actualiza el contador de favoritos después de cada cambio
+      updateStarIcons(); // Actualiza todos los íconos de estrella basados en el estado actual de favoritos
+    } else {
+      console.error('Error adding/removing favorite:', await response.json());
+    }
+  } catch (error) {
+    console.error('Error in BFF request:', error);
+  }
+}
+
+function updateFavoriteCounter(): void {
+  const counterElement = document.getElementById('favorite-counter');
+  const favorites = getFavorites();
+  if (counterElement) {
+    counterElement.textContent = favorites.length.toString();
+  }
+}
+
+async function fetchFavoritesFromServer(): Promise<string[]> {
+  try {
+    const response = await fetch('http://localhost:3000/api/favorites');
+    const data: { id: string }[] = await response.json();
+    return data.map(video => video.id);
+  } catch (error) {
+    console.error('Error fetching favorites from server:', error);
+    return [];
+  }
+}
+
+function updateStarIcons(): void {
+  const favorites = getFavorites();
+  const starElements = document.querySelectorAll('.favorite-star');
+
+  starElements.forEach(starElement => {
+    const videoId = (starElement as HTMLElement).parentElement?.dataset.videoId;
+    if (videoId && favorites.includes(videoId)) {
+      starElement.classList.remove('far');
+      starElement.classList.add('fas');
+      (starElement as HTMLElement).style.color = 'yellow';
+    } else {
+      starElement.classList.remove('fas');
+      starElement.classList.add('far');
+      (starElement as HTMLElement).style.color = '';
+    }
+  });
+}
+
+function playVideo(videoId: string, videoItem: HTMLElement): void {
+  const videoPlayer = document.getElementById('videoPlayer');
+  if (videoPlayer) {
+    const iframe = videoPlayer.querySelector('iframe');
+    if (iframe) {
+      iframe.src = `https://www.youtube.com/embed/${videoId}`;
+    }
+    videoPlayer.style.display = 'block';
+  }
+
+  const previouslySelected = document.querySelector('.selected-video');
+  if (previouslySelected) {
+    previouslySelected.classList.remove('selected-video');
+  }
+  videoItem.classList.add('selected-video');
+}
+
+// Local storage functions to fetch and save favorites temporarily
+function getFavorites(): string[] {
+  const favorites = localStorage.getItem('favorites');
+  return favorites ? JSON.parse(favorites) : [];
+}
+
+function saveFavorites(favorites: string[]): void {
+  localStorage.setItem('favorites', JSON.stringify(favorites));
+}
