@@ -22,6 +22,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const favoritesFromServer = await fetchFavoritesFromServer();
   saveFavorites(favoritesFromServer);
   updateStarIcons(); // Asegura que los íconos de estrella se actualicen al cargar la página
+
+  document.getElementById('favoritesButton')?.addEventListener('click', async () => {
+    const favoriteIds = await fetchFavoritesFromServer();
+    const favoriteVideos = await fetchVideosFromYouTube(favoriteIds);
+    renderFavoriteVideos(favoriteVideos);
+  });
 });
 
 document.getElementById('searchForm')?.addEventListener('submit', async function(event) {
@@ -39,7 +45,7 @@ document.getElementById('searchForm')?.addEventListener('submit', async function
 });
 
 async function displaySearchResults(videos: Video[]) {
-  const resultsContainer = document.getElementById('results');
+  const resultsContainer = document.getElementById('videos-container');
   if (!resultsContainer) return;
 
   resultsContainer.innerHTML = '';
@@ -49,11 +55,6 @@ async function displaySearchResults(videos: Video[]) {
   }
 
   updateStarIcons();
-
-  // Fetch favorite videos from BFF and render them
-  const favoriteIds = await fetchFavoritesFromServer();
-  const favoriteVideos = await fetchVideosFromYouTube(favoriteIds);
-  renderFavoriteVideos(favoriteVideos);
 }
 
 async function fetchVideosFromYouTube(videoIds: string[]): Promise<Video[]> {
@@ -84,10 +85,14 @@ async function fetchVideosFromYouTube(videoIds: string[]): Promise<Video[]> {
 }
 
 function renderFavoriteVideos(videos: Video[]): void {
+  const videosContainer = document.getElementById('videos-container');
   const favoritesContainer = document.getElementById('favorites-container');
-  if (!favoritesContainer) return;
+  if (!videosContainer || !favoritesContainer) return;
 
+  videosContainer.style.display = 'none';
+  favoritesContainer.style.display = 'grid';
   favoritesContainer.innerHTML = '';
+
   videos.forEach(video => {
     const videoItem = createVideoItem(video, true);
     favoritesContainer.appendChild(videoItem);

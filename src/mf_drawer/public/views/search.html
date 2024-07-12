@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Drawer</title>
-  <link rel="stylesheet" href="../style/main.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drawer</title>
+    <link rel="stylesheet" href="../style/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-  <div id="drawer-container" style="display: flex;">
-    <div id="drawer" style="width: 20%; background-color: #f0f0f0; height: 100vh;">
-      <button id="show-videos">VÍDEOS</button>
-      <button id="show-favorites">FAVORITOS</button>
+    <div id="drawer-container" style="display: flex;">
+        <div id="drawer" style="width: 20%; background-color: #f0f0f0; height: 100vh;">
+            <button id="show-videos">VÍDEOS</button>
+            <button id="show-favorites">FAVORITOS</button>
+        </div>
+        <div id="content" style="width: 80%;">
+            <iframe id="content-frame" src="http://localhost:3002" style="border: none; width: 100%; height: 100vh;"></iframe>
+        </div>
     </div>
-    <div id="content" style="width: 80%;">
-      <iframe id="content-frame" src="http://localhost:3002" style="border: none; width: 100%; height: 100vh;"></iframe>
-    </div>
-  </div>
-  <script src="../views/main.js"></script>
+    <script src="../views/main.js"></script>
 </body>
 </html>
